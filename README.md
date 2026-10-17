@@ -1,84 +1,143 @@
 # favicon-maker
 
-یک تصویر مربعِ باکیفیت می‌گیرد و کل ست فاوآیکون یک سایت را با `site.webmanifest`
-و تگ‌های `<head>` تحویل می‌دهد.
+[![test](https://github.com/cybex7/favicon-maker/actions/workflows/test.yml/badge.svg)](https://github.com/cybex7/favicon-maker/actions/workflows/test.yml)
 
-> Build a complete favicon set (`.ico`, PNG sizes, Apple touch icons, maskable icon),
-> a `site.webmanifest` and the `<head>` tags from a single square image.
-> Python 3 + Pillow.
+Make every favicon your site needs from one image.
 
-## نصب
+You give it one square logo. It gives you:
+
+- all the icon files
+- a `site.webmanifest`
+- the tags for your `<head>`
+- a preview page to check the result
+
+It works offline. Nothing is uploaded.
+
+![The preview page](docs/preview.png)
+
+## Install
+
+You need Python 3.10 or newer.
+
+```bash
+pipx install git+https://github.com/cybex7/favicon-maker.git
+```
+
+No pipx? Use pip:
+
+```bash
+pip install git+https://github.com/cybex7/favicon-maker.git
+```
+
+## Quick start
+
+```bash
+favicon-maker logo.svg --name "My Site"
+```
+
+This makes a `logo-favicons/` folder next to your logo.
+
+Then:
+
+1. Open `preview.html` and check the icons.
+2. Copy all files to your site's root folder. Skip `head.html` and `preview.html`.
+3. Paste the content of `head.html` into your page's `<head>`.
+
+## Examples
+
+Set the colours:
+
+```bash
+favicon-maker logo.png \
+  --name "Example News" \
+  --short-name "Example" \
+  --theme-color "#1b4dff" \
+  --background-color "#1b4dff"
+```
+
+A right-to-left site, in Persian:
+
+```bash
+favicon-maker logo.png \
+  --name "پایگاه خبری نمونه" \
+  --short-name "نمونه" \
+  --lang fa \
+  --dir rtl
+```
+
+Use `--lang ar --dir rtl` for Arabic, or `--lang he --dir rtl` for Hebrew.
+
+Pick the output folder and make a zip:
+
+```bash
+favicon-maker logo.png -o public/icons --zip
+```
+
+## Your logo
+
+- **Use SVG if you can.** It stays sharp at every size. You also get a `favicon.svg`.
+- **PNG, WebP and JPG work too.** Use 512 × 512 pixels or more. Smaller images work, but large icons look soft. You get a warning.
+- **It must be square.** If it is not, the tool stops. Crop it, or add `--pad-to-square`. That puts it in the middle of a clear square.
+
+## What you get
+
+| File | What it is for |
+| --- | --- |
+| `favicon.ico` | Browser tab. Has 16, 32 and 48 px inside. |
+| `favicon.svg` | Browser tab, sharp at any size. Only for an SVG logo. |
+| `favicon-192.png` | Google search results and Android. |
+| `favicon-512.png` | Android install and splash screen. |
+| `favicon-maskable-512.png` | Android. Android cuts it into a circle or other shape. |
+| `apple-touch-icon.png` | iPhone and iPad home screen. 180 px. |
+| `favicon-57.png` … `favicon-152.png` | Older iPhones and iPads. |
+| `apple-touch-icon-precomposed.png` and `apple-touch-icon-120x120*.png` | Some apps look for these names directly. |
+| `site.webmanifest` | Name, colours and icons for "Add to Home screen". |
+| `head.html` | The tags for your `<head>`. Do not upload it. |
+| `preview.html` | Shows how the icons look. Do not upload it. |
+
+Apple and maskable icons get a solid background. It comes from `--background-color`.
+iPhones turn clear areas black. Android cuts off the edges of maskable icons.
+So these icons also get some padding.
+
+## Options
+
+| Option | Default | What it does |
+| --- | --- | --- |
+| `-o`, `--out` | `<logo name>-favicons` | Output folder. |
+| `--name` | the file name | Full site name. |
+| `--short-name` | same as `--name` | Short name under the phone icon. |
+| `--theme-color` | `#ffffff` | Colour of the browser bar on phones. |
+| `--background-color` | `#ffffff` | Splash screen colour. Also the background of Apple and maskable icons. |
+| `--lang` | `en` | Language of the site name. |
+| `--dir` | `ltr` | Text direction: `ltr`, `rtl` or `auto`. |
+| `--display` | `minimal-ui` | How the installed site opens. `minimal-ui` keeps the back and reload buttons. |
+| `--start-url` | `/` | The page the installed site opens. |
+| `--padding` | `0` | Space around the logo in normal icons. From 0 to 0.5. |
+| `--apple-padding` | `0.08` | Space around the logo in Apple icons. |
+| `--maskable-padding` | `0.12` | Space around the logo in the maskable icon. |
+| `--pad-to-square` | off | Put a non-square logo in a clear square. |
+| `--zip` | off | Also make a zip file. |
+| `-f`, `--force` | off | Write into a folder that is not empty. |
+| `-V`, `--version` | | Show the version. |
+
+Run `favicon-maker --help` to see them all.
+
+## Run without installing
 
 ```bash
 git clone https://github.com/cybex7/favicon-maker.git
 cd favicon-maker
 pip install -r requirements.txt
+python3 favicon_maker.py logo.png
 ```
 
-فقط Python 3 و Pillow (نسخهٔ ۱۰ به بالا) لازم است.
-
-## استفاده
+## Development
 
 ```bash
-python3 favicon_maker.py logo.png \
-  --name "نام کامل سایت" \
-  --short-name "نام کوتاه" \
-  --theme-color "#0b0b0c" \
-  --background-color "#0b0b0c"
+pip install -e ".[test]"
+pytest
 ```
 
-خروجی در پوشهٔ `logo-favicons/` کنار همان فایل ساخته می‌شود (با `-o` عوضش کنید).
-با `--zip` یک فایل zip هم می‌سازد.
+## License
 
-بعد:
-
-1. همهٔ فایل‌ها به‌جز `head.html` را در ریشهٔ وب سایت بگذارید (مثلاً در CakePHP:
-   `app/webroot/`).
-2. محتوای `head.html` را در `<head>` بگذارید.
-
-## فایل ورودی
-
-- **مربع باشد.** اگر نباشد، اسکریپت با پیغام خطا متوقف می‌شود (کد خروج ۲)، چون
-  آیکون کج و کشیده می‌شد. یا مربعش کنید، یا با `--pad-to-square` آن را وسط یک مربع
-  شفاف بگذارید.
-- **دست‌کم ۵۱۲ پیکسل.** کوچک‌تر هم کار می‌کند ولی هشدار می‌دهد، چون آیکون‌های بزرگ
-  تار می‌شوند.
-- PNG، WebP یا JPG. SVG را قبول نمی‌کند؛ اول آن را PNG کنید.
-
-## چه چیزهایی می‌سازد
-
-| فایل                                                 | کاربرد                                                          |
-| ---------------------------------------------------- | --------------------------------------------------------------- |
-| `favicon.ico`                                        | ۱۶ + ۳۲ + ۴۸، سه فریم واقعی — تب مرورگر                         |
-| `favicon-192.png`                                    | `rel="icon"` — گوگل سرچ (مضرب ۴۸) و manifest                    |
-| `favicon-512.png`                                    | manifest — نصب در اندروید و صفحهٔ بارگذاری                      |
-| `favicon-maskable-512.png`                           | manifest با `purpose: maskable` — اندروید آیکون را گرد/شکل می‌دهد |
-| `apple-touch-icon.png`                               | ۱۸۰، مات (بدون شفافیت) — آیفون و آیپد امروزی                    |
-| `favicon-57/72/114/120/144/152.png`                  | سایزهای قدیمی iOS                                               |
-| `apple-touch-icon-precomposed.png`، `-120x120*.png`  | مسیرهای شناخته‌شده‌ای که بعضی کلاینت‌ها مستقیم سراغشان می‌روند   |
-| `site.webmanifest`                                   | اسم، رنگ، زبان و آیکون‌ها برای «Add to Home screen»              |
-| `head.html`                                          | تگ‌های `<link>` و `theme-color` برای کپی در `<head>`             |
-
-آیکون‌های Apple و maskable روی `--background-color` مات می‌شوند، چون iOS جای شفاف
-را سیاه پر می‌کند و اندروید لبهٔ آیکون maskable را می‌بُرد.
-
-## گزینه‌ها
-
-| گزینه                  | پیش‌فرض       | توضیح                                                     |
-| ---------------------- | ------------- | --------------------------------------------------------- |
-| `-o, --out`            | `<نام>-favicons` | پوشهٔ خروجی                                            |
-| `--name`               | نام فایل      | اسم کامل سایت در manifest                                 |
-| `--short-name`         | همان `--name` | اسم کوتاه زیر آیکون در گوشی                               |
-| `--theme-color`        | `#ffffff`     | رنگ نوار مرورگر                                           |
-| `--background-color`   | `#ffffff`     | صفحهٔ بارگذاری + پس‌زمینهٔ آیکون‌های Apple و maskable       |
-| `--lang`, `--dir`      | `fa`, `rtl`   | زبان و جهت manifest                                       |
-| `--display`            | `minimal-ui`  | سایت نصب‌شده چطور باز شود (دکمهٔ برگشت و رفرش می‌ماند)      |
-| `--start-url`          | `/`           | `start_url` و `scope`                                     |
-| `--padding`            | `0`           | حاشیه دور تصویر در آیکون‌های معمولی (۰ تا ۰٫۵)             |
-| `--apple-padding`      | `0.08`        | حاشیه در آیکون‌های Apple                                   |
-| `--maskable-padding`   | `0.12`        | حاشیه در آیکون maskable                                   |
-| `--pad-to-square`      | —             | تصویر غیرمربع را وسط مربع شفاف بگذار به‌جای خطا            |
-| `--zip`                | —             | یک zip هم بساز                                            |
-| `-f, --force`          | —             | روی پوشهٔ خروجیِ پر بازنویسی کن                            |
-
-`python3 favicon_maker.py --help` همهٔ گزینه‌ها را نشان می‌دهد.
+MIT. See [LICENSE](LICENSE).

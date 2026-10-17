@@ -3,3 +3,7 @@ __pycache__/
 .venv/
 *-favicons/
 *-favicons.zip
+build/
+dist/
+*.egg-info/
+.pytest_cache/
